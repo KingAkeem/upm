@@ -24,9 +24,9 @@ func toString(p registry.Package) string {
 	return string(s)
 }
 
-func checkRegistries(userRegistries, availableRegistries []string) bool {
-	for _, r := range userRegistries {
-		if slices.Contains(availableRegistries, r) {
+func checkRegistries(registries []string) bool {
+	for _, r := range registries {
+		if slices.Contains(AvailableRegistries, r) {
 			return true
 		}
 	}
@@ -54,11 +54,11 @@ func main() {
 
 	if len(registries) == 1 {
 		// a single registry could refer to "all" or be a single registry within the list
-		if !checkRegistries(registries, AvailableRegistries) && registries[0] != "all" {
+		if !checkRegistries(registries) && registries[0] != "all" {
 			panic(fmt.Errorf("no valid registry passed, found %v", registries))
 		}
 
-	} else if !checkRegistries(registries, AvailableRegistries) {
+	} else if !checkRegistries(registries) {
 		panic(fmt.Errorf("no valid registry passed, found %v", registries))
 	}
 
