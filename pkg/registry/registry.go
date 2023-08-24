@@ -18,7 +18,7 @@ func Register(registryType string, r RegistryFactory) {
 func Create(registryType string, settings map[string]interface{}) (Registry, error) {
 	factory, exists := registry[registryType]
 	if !exists {
-		return nil, fmt.Errorf("registry type %s can not be found", registryType)
+		return nil, fmt.Errorf("registry type '%s' can not be found", registryType)
 	}
 	return factory(settings), nil
 }

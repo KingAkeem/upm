@@ -5,6 +5,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"os"
 	"strings"
 	"upm/pkg/registry"
 	"upm/registries/npm"
@@ -44,27 +45,32 @@ func main() {
 	flag.Parse()
 
 	if strings.TrimSpace(*packageName) == "" {
-		panic("package name must be specified")
+		fmt.Println("Error: Package name is blank. Please provide a package name.")
+		os.Exit(0)
 	}
 
 	action := strings.ToLower(strings.TrimSpace(*actionArg))
 	if action == "" {
-		panic("action must be specified")
+		fmt.Println("Error: Action is blank. Please provide a valid action.")
+		os.Exit(0)
 	}
 
 	registries := strings.Split(strings.ToLower(strings.TrimSpace(*registriesArg)), ",")
 	if len(registries) < 1 {
-		panic(fmt.Errorf("registries argument malformed, found %s", registries))
+		fmt.Printf("Error: Malformed registries argument passed, found %v.\n", registries)
+		os.Exit(0)
 	}
 
 	if len(registries) == 1 {
 		// a single registry could refer to "all" or be a single registry within the list
 		if !checkRegistries(registries) && registries[0] != "all" {
-			panic(fmt.Errorf("no valid registry passed, found %v", registries))
+			fmt.Printf("No valid registry passed, found %v\n", registries)
+			os.Exit(0)
 		}
 
 	} else if !checkRegistries(registries) {
-		panic(fmt.Errorf("no valid registry passed, found %v", registries))
+		fmt.Printf("No valid registry passed, found %v\n", registries)
+		os.Exit(0)
 	}
 
 	var registryList []string
@@ -78,7 +84,8 @@ func main() {
 		fmt.Printf("Creating registry for %s.\n", registryType)
 		r, err := registry.Create(registryType, nil)
 		if err != nil {
-			panic(err)
+			fmt.Printf("Error: Unable to create %s registry, %s\n", registryType, err.Error())
+			continue
 		}
 		fmt.Printf("Success: Registry created for %s.\n", registryType)
 
@@ -94,10 +101,12 @@ func main() {
 				fmt.Printf("Success: %s has been found within %s.\n", *packageName, registryType)
 				fmt.Printf("%s\n\n", toString(project))
 			default:
-				panic(err)
+				fmt.Printf("Error: Unable to get %s from %s, %s", *packageName, registryType, err.Error())
+				continue
 			}
 		default:
-			panic(fmt.Errorf("invalid action found, %v", err))
+			fmt.Printf("Error: Invalid action found, %s\n\n", action)
+			continue
 		}
 	}
 }
