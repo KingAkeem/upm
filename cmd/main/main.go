@@ -42,6 +42,10 @@ func main() {
 	packageName := flag.String("p", "", "Package name")
 	flag.Parse()
 
+	if strings.TrimSpace(*packageName) == "" {
+		panic("package name must be specified")
+	}
+
 	action := strings.ToLower(strings.TrimSpace(*actionArg))
 	if action == "" {
 		panic("action must be specified")
