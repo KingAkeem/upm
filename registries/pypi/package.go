@@ -1,8 +1,11 @@
 package pypi
 
+import "fmt"
+
 type Info struct {
 	Name        string `json:"name"`
 	Author      string `json:"author"`
+	Email       string `json:"author_email"`
 	Description string `json:"description"`
 	License     string `json:"license"`
 	ProjectURL  string `json:"project_url"`
@@ -18,7 +21,7 @@ func (p *Package) Name() string {
 }
 
 func (p *Package) Author() string {
-	return p.Info.Author
+	return fmt.Sprintf("%s - %s", p.Info.Author, p.Info.Email)
 }
 func (p *Package) Description() string {
 	return p.Info.Description
