@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"upm/registry"
+	"upm/pkg/registry"
 )
 
 var Type string = "npm"

@@ -1,6 +1,7 @@
 package registry
 
 type Package interface {
+	Type() string
 	Name() string
 	Author() string
 	Description() string

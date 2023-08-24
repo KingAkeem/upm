@@ -5,15 +5,16 @@ import (
 	"flag"
 	"fmt"
 	"strings"
+	"upm/pkg/registry"
 	"upm/registries/npm"
 	"upm/registries/pypi"
-	"upm/registry"
 
 	"golang.org/x/exp/slices"
 )
 
 func toString(p registry.Package) string {
 	metadata := map[string]string{
+		"Registry":    p.Type(),
 		"Name":        p.Name(),
 		"Author":      p.Author(),
 		"Description": p.Description(),
@@ -30,7 +31,6 @@ func checkRegistries(registries []string) bool {
 			return true
 		}
 	}
-
 	return false
 }
 

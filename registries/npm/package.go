@@ -47,3 +47,6 @@ func (p *Package) Version() string {
 
 	return maps.Values(p.Versions)[len(p.Versions)-1].Version
 }
+func (p *Package) Type() string {
+	return Type
+}

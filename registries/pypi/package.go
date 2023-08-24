@@ -29,7 +29,9 @@ func (p *Package) License() string {
 func (p *Package) ProjectURL() string {
 	return p.Info.ProjectURL
 }
-
 func (p *Package) Version() string {
 	return p.Info.Version
+}
+func (p *Package) Type() string {
+	return Type
 }
