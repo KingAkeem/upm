@@ -34,71 +34,55 @@ func checkRegistries(userRegistries, availableRegistries []string) bool {
 	return false
 }
 
-func handleAction(r registry.Registry, action string, packageName string) {
-	switch action {
-	case "get":
-		project, err := r.Get(packageName)
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println(toString(project))
-
-	}
-}
+var AvailableRegistries = []string{npm.Type, pypi.Type}
 
 func main() {
-	var action string
-	flag.StringVar(&action, "a", "GET", "Action to be performed by upm")
-
-	var registriesArg string
-	flag.StringVar(&registriesArg, "r", "all", "Regstries to use for action")
-
-	var moduleName string
-	flag.StringVar(&moduleName, "n", "", "Name of the module to perform action upon")
-
+	actionArg := flag.String("a", "GET", "Action to perform on package")
+	registriesArg := flag.String("r", "all", "Which registries to use")
+	packageName := flag.String("p", "", "Package name")
 	flag.Parse()
 
-	action = strings.ToLower(strings.TrimSpace(action))
+	action := strings.ToLower(strings.TrimSpace(*actionArg))
 	if action == "" {
 		panic("action must be specified")
 	}
 
-	if registriesArg == "" {
-		panic("registries must be specified")
-	}
-
-	registries := strings.Split(registriesArg, ",")
+	registries := strings.Split(strings.ToLower(strings.TrimSpace(*registriesArg)), ",")
 	if len(registries) < 1 {
-		panic(fmt.Errorf("registries argument malformed, found %s", registriesArg))
+		panic(fmt.Errorf("registries argument malformed, found %s", registries))
 	}
 
-	availableRegistries := []string{npm.Type, pypi.Type}
 	if len(registries) == 1 {
-		if !checkRegistries(registries, availableRegistries) && registries[0] != "all" {
+		// a single registry could refer to "all" or be a single registry within the list
+		if !checkRegistries(registries, AvailableRegistries) && registries[0] != "all" {
 			panic(fmt.Errorf("no valid registry passed, found %v", registries))
 		}
 
-	} else if !checkRegistries(registries, availableRegistries) {
+	} else if !checkRegistries(registries, AvailableRegistries) {
 		panic(fmt.Errorf("no valid registry passed, found %v", registries))
 	}
 
+	var registryList []string
 	if registries[0] == "all" {
-		// search all available registries
-		for _, registryType := range availableRegistries {
-			r, err := registry.Create(registryType, nil)
-			if err != nil {
-				panic(err)
-			}
-			handleAction(r, action, moduleName)
-		}
+		registryList = AvailableRegistries
 	} else {
-		// search user specified registries
-		for _, registryType := range registries {
-			r, err := registry.Create(registryType, nil)
+		registryList = registries
+	}
+
+	for _, registryType := range registryList {
+		r, err := registry.Create(registryType, nil)
+		if err != nil {
+			panic(err)
+		}
+		switch action {
+		case "get":
+			project, err := r.Get(*packageName)
 			if err != nil {
 				panic(err)
 			}
-			handleAction(r, action, moduleName)
+			fmt.Println(toString(project))
+		default:
+			panic(fmt.Errorf("invalid action found, %v", err))
 		}
 	}
 }
