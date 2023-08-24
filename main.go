@@ -70,17 +70,22 @@ func main() {
 	}
 
 	for _, registryType := range registryList {
+		fmt.Printf("Creating registry for %s.\n", registryType)
 		r, err := registry.Create(registryType, nil)
 		if err != nil {
 			panic(err)
 		}
+		fmt.Printf("Success: Registry created for %s.\n", registryType)
+
+		fmt.Printf("Performing action '%s' for package %s.\n", action, *packageName)
 		switch action {
 		case "get":
 			project, err := r.Get(*packageName)
 			if err != nil {
 				panic(err)
 			}
-			fmt.Println(toString(project))
+			fmt.Printf("Success: %s has been found within %s.\n", *packageName, registryType)
+			fmt.Printf("%s\n\n", toString(project))
 		default:
 			panic(fmt.Errorf("invalid action found, %v", err))
 		}
