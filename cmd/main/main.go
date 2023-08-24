@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"strings"
@@ -85,11 +86,16 @@ func main() {
 		switch action {
 		case "get":
 			project, err := r.Get(*packageName)
-			if err != nil {
+			switch {
+			case errors.As(err, &registry.PackageNotFoundError{}):
+				fmt.Printf("Error: %s not found within %s.\n\n", *packageName, registryType)
+				continue
+			case err == nil:
+				fmt.Printf("Success: %s has been found within %s.\n", *packageName, registryType)
+				fmt.Printf("%s\n\n", toString(project))
+			default:
 				panic(err)
 			}
-			fmt.Printf("Success: %s has been found within %s.\n", *packageName, registryType)
-			fmt.Printf("%s\n\n", toString(project))
 		default:
 			panic(fmt.Errorf("invalid action found, %v", err))
 		}

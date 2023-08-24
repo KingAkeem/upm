@@ -35,6 +35,10 @@ func (n *NpmRegistry) Get(name string) (registry.Package, error) {
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode == http.StatusNotFound {
+		return nil, registry.PackageNotFoundError{}
+	}
+
 	item := new(Package)
 	err = json.NewDecoder(resp.Body).Decode(&item)
 	if err != nil {
