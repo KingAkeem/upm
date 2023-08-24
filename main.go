@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"opm/registries/npm"
-	"opm/registries/pypi"
-	"opm/registry"
 	"strings"
+	"upm/registries/npm"
+	"upm/registries/pypi"
+	"upm/registry"
 
 	"golang.org/x/exp/slices"
 )
@@ -48,7 +48,7 @@ func handleAction(r registry.Registry, action string, packageName string) {
 
 func main() {
 	var action string
-	flag.StringVar(&action, "a", "", "Action to be performed by opm")
+	flag.StringVar(&action, "a", "GET", "Action to be performed by upm")
 
 	var registriesArg string
 	flag.StringVar(&registriesArg, "r", "all", "Regstries to use for action")

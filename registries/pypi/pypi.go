@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"opm/registry"
 	"strings"
+	"upm/registry"
 )
 
 var Type string = "pypi"
@@ -17,10 +17,6 @@ type PypiRegistry struct {
 
 func init() {
 	registry.Register(Type, NewPypiRegistry)
-}
-
-type PypiPackage struct {
-	Info map[string]interface{} `json:"info"`
 }
 
 func (p *PypiRegistry) Get(name string) (registry.Package, error) {

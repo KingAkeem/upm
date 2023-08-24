@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"opm/registry"
 	"strings"
+	"upm/registry"
 )
 
 var Type string = "npm"
