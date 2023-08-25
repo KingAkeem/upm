@@ -52,6 +52,10 @@ func (n *NpmRegistry) Type() string {
 	return Type
 }
 
+func (n *NpmRegistry) Publish(username, password string) error {
+	return nil
+}
+
 func NewNpmRegistry(settings map[string]interface{}) registry.Registry {
 	return &NpmRegistry{URL: "https://registry.npmjs.com"}
 }

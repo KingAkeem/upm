@@ -5,6 +5,7 @@ import "fmt"
 type Registry interface {
 	Type() string
 	Get(name string) (Package, error)
+	Publish(username, password string) error
 }
 
 type RegistryFactory func(settings map[string]interface{}) Registry

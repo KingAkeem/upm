@@ -37,21 +37,26 @@ func checkRegistries(registries []string) bool {
 }
 
 var AvailableRegistries = []string{npm.Type, pypi.Type}
+var GET = "get"
+var PUBLISH = "publish"
+var AvailableActions = []string{GET, PUBLISH}
 
 func main() {
-	actionArg := flag.String("a", "GET", "Action to perform on package")
+	actionArg := flag.String("a", GET, "Action to perform on package")
 	registriesArg := flag.String("r", "all", "Which registries to use")
-	packageName := flag.String("p", "", "Package name")
+	packageName := flag.String("n", "", "Package name")
+	username := flag.String("u", "", "username for registry account")
+	password := flag.String("p", "", "password for registry account")
 	flag.Parse()
-
-	if strings.TrimSpace(*packageName) == "" {
-		fmt.Println("Error: Package name is blank. Please provide a package name.")
-		os.Exit(0)
-	}
 
 	action := strings.ToLower(strings.TrimSpace(*actionArg))
 	if action == "" {
 		fmt.Println("Error: Action is blank. Please provide a valid action.")
+		os.Exit(0)
+	}
+
+	if strings.TrimSpace(*packageName) == "" && action != PUBLISH {
+		fmt.Println("Error: Package name is blank. Please provide a package name.")
 		os.Exit(0)
 	}
 
@@ -64,12 +69,17 @@ func main() {
 	if len(registries) == 1 {
 		// a single registry could refer to "all" or be a single registry within the list
 		if !checkRegistries(registries) && registries[0] != "all" {
-			fmt.Printf("No valid registry passed, found %v\n", registries)
+			fmt.Printf("Error: No valid registry passed, found %v\n", registries)
 			os.Exit(0)
 		}
 
 	} else if !checkRegistries(registries) {
-		fmt.Printf("No valid registry passed, found %v\n", registries)
+		fmt.Printf("Error: No valid registry passed, found %v\n", registries)
+		os.Exit(0)
+	}
+
+	if !slices.Contains(AvailableActions, action) {
+		fmt.Printf("Error: Invalid action found, found %s.\n", action)
 		os.Exit(0)
 	}
 
@@ -89,9 +99,16 @@ func main() {
 		}
 		fmt.Printf("Success: Registry created for %s.\n", registryType)
 
-		fmt.Printf("Performing action '%s' for package %s.\n", action, *packageName)
 		switch action {
-		case "get":
+		case PUBLISH:
+			fmt.Printf("Performing '%s'.\n", action)
+			err = r.Publish(*username, *password)
+			if err != nil {
+				fmt.Printf("Error: Unable to publish to %s, %s\n", registryType, err.Error())
+				continue
+			}
+		case GET:
+			fmt.Printf("Performing '%s' for package %s.\n", action, *packageName)
 			project, err := r.Get(*packageName)
 			switch {
 			case errors.As(err, &registry.PackageNotFoundError{}):
@@ -101,7 +118,7 @@ func main() {
 				fmt.Printf("Success: %s has been found within %s.\n", *packageName, registryType)
 				fmt.Printf("%s\n\n", toString(project))
 			default:
-				fmt.Printf("Error: Unable to get %s from %s, %s", *packageName, registryType, err.Error())
+				fmt.Printf("Error: Unable to get %s from %s, %s.\n", *packageName, registryType, err.Error())
 				continue
 			}
 		default:
