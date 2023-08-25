@@ -23,29 +23,29 @@ func init() {
 
 func (p *PypiRegistry) Publish(username, password string) error {
 	buildCmd := exec.Command("python", "setup.py", "sdist", "bdist_wheel")
-	result, err := buildCmd.Output()
+	buildCmd.Stdout = os.Stdout
+	buildCmd.Stderr = os.Stderr
+	err := buildCmd.Start()
 	if err != nil {
 		return err
 	}
-	fmt.Print(string(result))
+	err = buildCmd.Wait()
+	if err != nil {
+		return err
+	}
 	fmt.Println("Success: Python package successfully built.")
 
 	uploadCmd := exec.Command("twine", "upload", "-u", username, "-p", password, "dist/*")
-
 	uploadCmd.Stdout = os.Stdout
 	uploadCmd.Stderr = os.Stderr
-
 	err = uploadCmd.Start()
 	if err != nil {
 		return err
 	}
-
 	err = uploadCmd.Wait()
 	if err != nil {
 		return err
 	}
-
-	fmt.Print(string(result))
 	fmt.Printf("Success: Python package successfuly uploaded to %s.\n", Type)
 	return nil
 }

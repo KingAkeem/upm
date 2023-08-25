@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
+	"os/exec"
 	"strings"
 	"upm/pkg/registry"
 )
@@ -53,6 +55,18 @@ func (n *NpmRegistry) Type() string {
 }
 
 func (n *NpmRegistry) Publish(username, password string) error {
+	publishCmd := exec.Command("npm", "publish")
+	publishCmd.Stdout = os.Stdout
+	publishCmd.Stderr = os.Stderr
+	err := publishCmd.Start()
+	if err != nil {
+		return err
+	}
+	err = publishCmd.Wait()
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Success: NPM package successfully uploaded to %s.\n", Type)
 	return nil
 }
 
