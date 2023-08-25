@@ -37,8 +37,8 @@ func checkRegistries(registries []string) bool {
 
 var AvailableRegistries = []string{npm.Type, pypi.Type}
 var fetch = "fetch"
-var PUBLISH = "publish"
-var AvailableActions = []string{fetch, PUBLISH}
+var publish = "publish"
+var AvailableActions = []string{fetch, publish}
 
 func main() {
 	if len(os.Args) < 2 {
@@ -75,7 +75,7 @@ func main() {
 	}
 
 	// publish action doesn't require a package name
-	if strings.TrimSpace(packageName) == "" && action != PUBLISH {
+	if strings.TrimSpace(packageName) == "" && action != publish {
 		fmt.Println("Error: Package name is blank. Please provide a package name.")
 		os.Exit(0)
 	}
@@ -120,7 +120,7 @@ func main() {
 		fmt.Printf("Success: Registry created for %s.\n", registryType)
 
 		switch action {
-		case PUBLISH:
+		case publish:
 			fmt.Printf("Performing '%s'.\n", action)
 			err = r.Publish(username, password)
 			if err != nil {
