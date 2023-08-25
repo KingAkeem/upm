@@ -18,6 +18,4 @@ type Package interface {
 	Description() string
 	License() string
 	Version() string
-	//Created() time.Time
-	//LastModified() time.Time
 }

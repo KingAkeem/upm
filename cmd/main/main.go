@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"flag"
 	"fmt"
 	"os"
 	"strings"
@@ -37,30 +36,51 @@ func checkRegistries(registries []string) bool {
 }
 
 var AvailableRegistries = []string{npm.Type, pypi.Type}
-var GET = "get"
+var fetch = "fetch"
 var PUBLISH = "publish"
-var AvailableActions = []string{GET, PUBLISH}
+var AvailableActions = []string{fetch, PUBLISH}
 
 func main() {
-	actionArg := flag.String("a", GET, "Action to perform on package")
-	registriesArg := flag.String("r", "all", "Which registries to use")
-	packageName := flag.String("n", "", "Package name")
-	username := flag.String("u", "", "username for registry account")
-	password := flag.String("p", "", "password for registry account")
-	flag.Parse()
+	if len(os.Args) < 2 {
+		os.Exit(0)
+	}
 
-	action := strings.ToLower(strings.TrimSpace(*actionArg))
+	action := strings.ToLower(strings.TrimSpace(os.Args[1]))
 	if action == "" {
 		fmt.Println("Error: Action is blank. Please provide a valid action.")
 		os.Exit(0)
 	}
 
-	if strings.TrimSpace(*packageName) == "" && action != PUBLISH {
+	var registriesArg string
+	var packageName string
+	var username string
+	var password string
+	for i, arg := range os.Args[1:] {
+		switch strings.TrimSpace(arg) {
+		case "-n":
+			packageName = os.Args[i+2]
+		case "-r":
+			registriesArg = os.Args[i+2]
+		case "-u":
+			username = os.Args[i+2]
+		case "-p":
+			password = os.Args[i+2]
+
+		}
+	}
+
+	// defaults to all available registries
+	if strings.TrimSpace(registriesArg) == "" {
+		registriesArg = "all"
+	}
+
+	// publish action doesn't require a package name
+	if strings.TrimSpace(packageName) == "" && action != PUBLISH {
 		fmt.Println("Error: Package name is blank. Please provide a package name.")
 		os.Exit(0)
 	}
 
-	registries := strings.Split(strings.ToLower(strings.TrimSpace(*registriesArg)), ",")
+	registries := strings.Split(strings.ToLower(strings.TrimSpace(registriesArg)), ",")
 	if len(registries) < 1 {
 		fmt.Printf("Error: Malformed registries argument passed, found %v.\n", registries)
 		os.Exit(0)
@@ -102,23 +122,23 @@ func main() {
 		switch action {
 		case PUBLISH:
 			fmt.Printf("Performing '%s'.\n", action)
-			err = r.Publish(*username, *password)
+			err = r.Publish(username, password)
 			if err != nil {
 				fmt.Printf("Error: Unable to publish to %s, %s\n", registryType, err.Error())
 				continue
 			}
-		case GET:
-			fmt.Printf("Performing '%s' for package %s.\n", action, *packageName)
-			project, err := r.Get(*packageName)
+		case fetch:
+			fmt.Printf("Performing '%s' for package %s.\n", action, packageName)
+			project, err := r.Fetch(packageName)
 			switch {
 			case errors.As(err, &registry.PackageNotFoundError{}):
-				fmt.Printf("Error: %s not found within %s.\n\n", *packageName, registryType)
+				fmt.Printf("Error: %s not found within %s.\n\n", packageName, registryType)
 				continue
 			case err == nil:
-				fmt.Printf("Success: %s has been found within %s.\n", *packageName, registryType)
+				fmt.Printf("Success: %s has been found within %s.\n", packageName, registryType)
 				fmt.Printf("%s\n\n", toString(project))
 			default:
-				fmt.Printf("Error: Unable to get %s from %s, %s.\n", *packageName, registryType, err.Error())
+				fmt.Printf("Error: Unable to fetch %s from %s, %s.\n", packageName, registryType, err.Error())
 				continue
 			}
 		default:

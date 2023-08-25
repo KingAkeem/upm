@@ -50,7 +50,7 @@ func (p *PypiRegistry) Publish(username, password string) error {
 	return nil
 }
 
-func (p *PypiRegistry) Get(name string) (registry.Package, error) {
+func (p *PypiRegistry) Fetch(name string) (registry.Package, error) {
 	if strings.TrimSpace(name) == "" {
 		return nil, fmt.Errorf("name must be specified")
 	}

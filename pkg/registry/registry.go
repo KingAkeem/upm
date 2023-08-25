@@ -4,7 +4,7 @@ import "fmt"
 
 type Registry interface {
 	Type() string
-	Get(name string) (Package, error)
+	Fetch(name string) (Package, error)
 	Publish(username, password string) error
 }
 

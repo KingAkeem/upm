@@ -21,7 +21,7 @@ func init() {
 	registry.Register(Type, NewNpmRegistry)
 }
 
-func (n *NpmRegistry) Get(name string) (registry.Package, error) {
+func (n *NpmRegistry) Fetch(name string) (registry.Package, error) {
 	if strings.TrimSpace(name) == "" {
 		return nil, fmt.Errorf("name must be specified")
 	}
