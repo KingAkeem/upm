@@ -18,8 +18,8 @@ Simplify your development workflow with UPM, a versatile package manager designe
 
 1. Install UPM by running: `go install github.com/KingAkeem/upm`.
 2. Retrieve package metadata: `upm fetch -n {package_name}`.
-3. Publish a package: `upm publish -u {username} -p {password}`.
-4. To use credentials from a local file, run: `upm publish -c path/to/credentials.json`.
+3. Publish a package: `upm publish -u {username} -p {password}` (pypi) or `upm publish` after executing `npm login` (npm)
+4. To use credentials from a local file, run: `upm publish -c path/to/credentials.json`. (In Progress)
 
 ## Example
 
