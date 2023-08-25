@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -22,8 +21,17 @@ func toString(p registry.Package) string {
 		"License":     p.License(),
 		"Version":     p.Version(),
 	}
-	s, _ := json.MarshalIndent(metadata, "", "\t")
-	return string(s)
+
+	packageData := ""
+	i := 0
+	for metadataKey, metadataValue := range metadata {
+		packageData += fmt.Sprintf("%s: %s", metadataKey, metadataValue)
+		i++
+		if i != len(metadata) {
+			packageData += "\n"
+		}
+	}
+	return packageData
 }
 
 func checkRegistries(registries []string) bool {
@@ -128,15 +136,17 @@ func main() {
 				continue
 			}
 		case fetch:
-			fmt.Printf("Performing '%s' for package %s.\n", action, packageName)
+			fmt.Printf("Performing '%s' for package '%s'.\n", action, packageName)
 			project, err := r.Fetch(packageName)
 			switch {
 			case errors.As(err, &registry.PackageNotFoundError{}):
 				fmt.Printf("Error: %s not found within %s.\n\n", packageName, registryType)
 				continue
 			case err == nil:
-				fmt.Printf("Success: %s has been found within %s.\n", packageName, registryType)
-				fmt.Printf("%s\n\n", toString(project))
+				fmt.Printf("Success: '%s' has been found within %s.\n", packageName, registryType)
+				fmt.Println("------------------------")
+				fmt.Printf("%s\n", toString(project))
+				fmt.Println("------------------------")
 			default:
 				fmt.Printf("Error: Unable to fetch %s from %s, %s.\n", packageName, registryType, err.Error())
 				continue

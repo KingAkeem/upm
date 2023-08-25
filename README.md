@@ -23,12 +23,46 @@ Simplify your development workflow with UPM, a versatile package manager designe
 
 ## Example
 
+### Fetching
 ```bash
-$ upm fetch -n example-package
-Fetching package information for 'example-package'...
-Name: example-package
-Version: 1.0.0
+$ upm fetch -n vue
+Creating registry for npm.
+Success: Registry created for npm.
+Performing 'fetch' for package 'vue'.
+Success: 'vue' has been found within npm.
+------------------------
+Description: The progressive JavaScript framework for building modern web UI.
 License: MIT
+Version: 0.11.0-rc3
+Registry: npm
+Name: vue
+Author: Evan You
+------------------------
+Creating registry for pypi.
+Success: Registry created for pypi.
+Performing 'fetch' for package 'vue'.
+Success: 'vue' has been found within pypi.
+------------------------
+Author: titan - i@qtitan.com
+Description: 
+License: 
+Version: 0.0.1
+Registry: pypi
+Name: vue
+------------------------
+```
+
+### Publishing
+
+### pypi
+```bash
+$ upm publish -u ${username} -p ${password} 
+```
+
+### npm
+```bash
+$ npm login
+$ upm publish 
 ```
 ## Contributing
 Contributions are welcome! To contribute:
