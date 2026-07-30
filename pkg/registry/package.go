@@ -3,12 +3,16 @@ package registry
 import "fmt"
 
 type PackageNotFoundError struct {
-	name         string
-	registryType string
+	Name         string
+	RegistryType string
 }
 
 func (p PackageNotFoundError) Error() string {
-	return fmt.Sprintf("Package %s was not found in %s", p.name, p.registryType)
+	return fmt.Sprintf("package %s was not found in %s", p.Name, p.RegistryType)
+}
+
+func NewPackageNotFoundError(name, registryType string) error {
+	return PackageNotFoundError{Name: name, RegistryType: registryType}
 }
 
 type Package interface {

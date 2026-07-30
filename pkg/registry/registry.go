@@ -1,11 +1,20 @@
 package registry
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 type Registry interface {
 	Type() string
 	Fetch(name string) (Package, error)
-	Publish(username, password string) error
+	Inspect(name string, now time.Time) (Inspection, error)
+	Publish(options PublishOptions) error
+}
+
+type PublishOptions struct {
+	Package string
+	Account string
 }
 
 type RegistryFactory func(settings map[string]interface{}) Registry
