@@ -1,74 +1,83 @@
-# UPM - Universal Package Manager for Multi-Language Repositories
+# UPM
 
-Simplify your development workflow with UPM, a versatile package manager designed for multi-language repositories. Whether you're coding in Python, JavaScript, Java, Golang, or any other language, our tool streamlines the process of retrieving and publishing packages across diverse ecosystems. Say goodbye to language-specific complexities and embrace a unified solution for managing dependencies. Effortlessly fetch, version, and share packages, enhancing collaboration and boosting productivity. Join us in revolutionizing cross-language and cross-platform package management today!
+UPM provides a small, common command-line interface for inspecting, fetching, and publishing packages across npm and PyPI.
 
-## Features
-
-- **Universal Solution:** Seamlessly manage packages across various programming languages within a unified tool.
-- **Effortless Retrieval:** Fetch metadata for a single package effortlessly using UPM's command-line interface.
-- **Streamlined Publishing:** Effortlessly publish your packages using simple commands.
-- **Secure Credentials:** Securely manage authentication using encrypted local files.
-
-## Supported Ecosystems
+## Supported registries
 
 - npm
-- pypi
+- PyPI
 
-## Getting Started
+## Install
 
-1. Install UPM by running: `go install github.com/KingAkeem/upm`.
-2. Retrieve package metadata: `upm fetch -n {package_name}`.
-3. Publish a package: `upm publish -u {username} -p {password}` (pypi) or `upm publish` after executing `npm login` (npm)
-4. To use credentials from a local file, run: `upm publish -c path/to/credentials.json`. (In Progress)
-
-## Example
-
-### Fetching
 ```bash
-$ upm fetch -n vue
-Creating registry for npm.
-Success: Registry created for npm.
-Performing 'fetch' for package 'vue'.
-Success: 'vue' has been found within npm.
-------------------------
-Description: The progressive JavaScript framework for building modern web UI.
-License: MIT
-Version: 0.11.0-rc3
-Registry: npm
-Name: vue
-Author: Evan You
-------------------------
-Creating registry for pypi.
-Success: Registry created for pypi.
-Performing 'fetch' for package 'vue'.
-Success: 'vue' has been found within pypi.
-------------------------
-Author: titan - i@qtitan.com
-Description: 
-License: 
-Version: 0.0.1
-Registry: pypi
-Name: vue
-------------------------
+git clone git@github.com:KingAkeem/upm.git
+cd upm
+go build -o upm ./cmd/main
 ```
 
-### Publishing
+## Inspect package trust metadata
 
-### pypi
+`inspect` reports registry-provided fields separately from UPM's inferred warnings. A warning is a review prompt, not verified evidence that a package is unsafe.
+
 ```bash
-$ upm publish -u ${username} -p ${password} 
+upm inspect -n requests -r pypi
+upm inspect -n vue -r npm
+upm inspect -n example-package -r all
 ```
 
-### npm
+Verified metadata includes the latest version, license, maintainers or authors, release and update times, deprecated or yanked status when the registry exposes it, and package and repository URLs.
+
+Inferred warnings cover:
+
+- missing license, maintainer, repository, or update metadata
+- packages whose last reported update is more than two years old
+- registry-reported deprecation or yanking
+
+Always review the verified fields and linked upstream sources before making a dependency decision.
+
+## Fetch package metadata
+
 ```bash
-$ npm login
-$ upm publish 
+upm fetch -n vue -r npm
+upm fetch -n requests -r pypi
 ```
+
+Omit `-r` to query both supported registries.
+
+## Publish safely
+
+Publishing is a dry run by default. The preview identifies the registry, account label, package, and credential source without executing a build or upload command.
+
+```bash
+upm publish -n example-package -r npm
+upm publish -n example-package -r pypi --dry-run
+```
+
+After reviewing the plan, add `--execute` to publish to exactly one registry:
+
+```bash
+upm publish -n example-package -r npm --execute
+upm publish -n example-package -r pypi --execute
+```
+
+The package argument is used for the safety preview. Publishing commands run from the current package directory.
+
+### Credentials
+
+UPM does not accept password command-line flags and does not print credential values.
+
+For npm, authenticate with `npm login` or configure an npm access token through npm's supported configuration or environment mechanism. For PyPI, configure Twine using an environment or CI secret, `.pypirc`, or a system keyring. Token-based PyPI authentication should use `__token__` as `TWINE_USERNAME`; provide `TWINE_PASSWORD` through a protected environment rather than shell history.
+
+Use `--account` only to label the non-secret identity shown in a preview. It is not used as a credential.
+
+## Development
+
+```bash
+go test ./...
+go vet ./...
+go build ./cmd/main
+```
+
 ## Contributing
-Contributions are welcome! To contribute:
 
-1. Fork the KingAkeem/upm repository.
-2. Create a branch: git checkout -b feature/your-feature-name.
-3. Commit your changes: git commit -am 'Add new feature'.
-4. Push the branch: git push origin feature/your-feature-name.
-5. Open a pull request.
+Contributions are welcome. Create a focused branch, add tests for behavioral changes, and open a pull request against this repository.
