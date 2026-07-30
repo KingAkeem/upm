@@ -72,11 +72,24 @@ Use `--account` only to label the non-secret identity shown in a preview. It is 
 
 ## Development
 
+The GitHub Actions pipeline runs the same checks on pushes and pull requests:
+
 ```bash
 go test ./...
 go vet ./...
-go build ./cmd/main
+go build -o /tmp/upm ./cmd/main
+/tmp/upm publish -n example-package -r npm
 ```
+
+The last command is a local dry-run publish preview. It does not contact npm or
+publish anything.
+
+## CI/CD
+
+`.github/workflows/ci.yml` runs on pull requests, pushes to `main` or `master`,
+and manual dispatch. It installs the Go version declared in `go.mod`, runs
+tests, runs `go vet`, builds the CLI, performs a dry-run publish smoke test, and
+uploads the Linux CLI binary as a workflow artifact.
 
 ## Contributing
 
